@@ -1,0 +1,106 @@
+1. Pages / Sections
+
+    Landing Page / Hero Section
+
+        Big headline like: “Transform Ideas Into Reality With 3D Printing”
+
+        Sub-text describing services
+
+        “Get Quote” and “Explore Services” buttons
+
+        Background animation (CSS gradients, particles, floating shapes, OR parallax)
+
+    Why Choose Us
+
+        Modern cards with hover animations
+
+        Icons + short text
+
+        Smooth zoom or slide-in effects
+
+    Our Services
+
+        3–4 animated cards (e.g., FDM Printing, Resin Printing, Prototyping, Custom Designs)
+
+        Each card should animate on hover (tilt, glow, or scale)
+
+    3D Gallery
+
+        Grid of 3D-printed items
+
+        Each image should have a hover lift animation + shadow
+
+    Contact Section
+
+        Simple contact form
+
+        Clean and minimal
+
+    Footer
+
+        Social icons
+
+        Quick links
+
+2. Design Requirements
+
+    Clean, modern UI
+
+    Colors: Neon blue + black or white + electric gradients
+
+    Use glassmorphism cards, blur, shadows
+
+    Rounded corners, high-quality spacing
+
+    Use Google Fonts (Inter, Poppins, or Space Grotesk)
+
+3. Animation Requirements
+
+    Smooth scroll animations
+
+    Hover interactions (scale, glow, tilt)
+
+    Button ripple or glow effects
+
+    Optional: parallax background
+
+    Optional: floating abstract shapes in hero section
+
+    All animations must be smooth and optimized
+
+4. Technology
+
+    HTML + CSS + JavaScript only
+
+    No frameworks unless absolutely needed
+
+    Keep code modular and easy to extend
+
+    Use CSS variables for theme colors
+
+    Use JS for animations (GSAP optional if free)
+
+5. Output
+
+    Provide:
+
+        Full index.html
+
+        Full style.css
+
+        Full script.js
+
+    Use a modern folder structure:
+
+        /assets
+        /images
+        /css/style.css
+        /js/script.js
+        index.html
+
+
+    Make sure everything works directly when I copy-paste.
+
+6. Tone
+
+    Make the design attractive, premium, futuristic, and eye-catching, perfect for a 3D-printing startup website.
