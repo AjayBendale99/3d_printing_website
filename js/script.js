@@ -187,8 +187,47 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================
-    // Contact Form Handling
+    // Contact Form Handling with EmailJS
     // ============================================
+
+    // EmailJS Configuration
+    // IMPORTANT: Replace these with your actual EmailJS credentials
+    const EMAILJS_CONFIG = {
+        PUBLIC_KEY: "rljC3g0prIXFwPL-p",        // Get from EmailJS Account → General
+        SERVICE_ID: "service_a9u4qxl",       // Get from EmailJS Email Services
+        TEMPLATE_ID: "template_choiqrb",      // Get from EmailJS Email Templates
+        TO_EMAIL: "ajaybendale1999@gmail.com" // Your email address
+    };
+
+    // Check if EmailJS is loaded
+    function isEmailJSLoaded() {
+        return typeof emailjs !== 'undefined';
+    }
+
+    // Check if credentials are configured
+    function areCredentialsConfigured() {
+        return EMAILJS_CONFIG.PUBLIC_KEY !== "YOUR_PUBLIC_KEY" &&
+               EMAILJS_CONFIG.SERVICE_ID !== "YOUR_SERVICE_ID" &&
+               EMAILJS_CONFIG.TEMPLATE_ID !== "YOUR_TEMPLATE_ID";
+    }
+
+    // Initialize EmailJS if credentials are configured
+    if (isEmailJSLoaded() && areCredentialsConfigured()) {
+        try {
+            emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+            console.log('✅ EmailJS initialized successfully');
+        } catch (error) {
+            console.error('❌ EmailJS initialization failed:', error);
+        }
+    } else {
+        if (!isEmailJSLoaded()) {
+            console.warn('⚠️ EmailJS library not loaded. Check if the script is included in HTML.');
+        }
+        if (!areCredentialsConfigured()) {
+            console.warn('⚠️ EmailJS credentials not configured. Please update EMAILJS_CONFIG in js/script.js');
+            console.warn('📖 See EMAILJS_SETUP.md for setup instructions');
+        }
+    }
 
     const contactForm = document.getElementById('contactForm');
 
@@ -196,28 +235,70 @@ document.addEventListener('DOMContentLoaded', function() {
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
+            // Validate EmailJS setup
+            if (!isEmailJSLoaded()) {
+                showNotification('Email service not available. Please contact us directly at ajaybendale1999@gmail.com', 'error');
+                return;
+            }
+
+            if (!areCredentialsConfigured()) {
+                showNotification('Email service not configured. Please contact us directly at ajaybendale1999@gmail.com', 'error');
+                console.error('EmailJS credentials not configured. Please update EMAILJS_CONFIG in js/script.js');
+                return;
+            }
+
             // Get form data
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            // Validate form fields
+            if (!name || !email || !subject || !message) {
+                showNotification('Please fill in all fields', 'error');
+                return;
+            }
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showNotification('Please enter a valid email address', 'error');
+                return;
+            }
+
             const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                subject: document.getElementById('subject').value,
-                message: document.getElementById('message').value
+                from_name: name,
+                from_email: email,
+                subject: subject,
+                message: message,
+                to_email: EMAILJS_CONFIG.TO_EMAIL
             };
 
-            // Simulate form submission
             const submitButton = contactForm.querySelector('button[type="submit"]');
             const originalText = submitButton.innerHTML;
 
+            // Show loading state
             submitButton.innerHTML = '<span>Sending...</span>';
             submitButton.disabled = true;
 
-            // Simulate API call
-            setTimeout(() => {
+            // Send email using EmailJS
+            emailjs.send(
+                EMAILJS_CONFIG.SERVICE_ID,
+                EMAILJS_CONFIG.TEMPLATE_ID,
+                formData
+            )
+            .then(function(response) {
+                console.log('✅ Email sent successfully:', response.status, response.text);
+                
+                // Success
                 submitButton.innerHTML = '<span>Message Sent! ✓</span>';
-                submitButton.style.background = 'linear-gradient(135deg, #00ff88 0%, #00d4ff 100%)';
+                submitButton.style.background = 'linear-gradient(135deg, #ffb700 0%, #ff9500 100%)';
                 
                 // Reset form
                 contactForm.reset();
+
+                // Show success message
+                showNotification('Message sent successfully! We\'ll get back to you soon.', 'success');
 
                 // Reset button after 3 seconds
                 setTimeout(() => {
@@ -225,9 +306,111 @@ document.addEventListener('DOMContentLoaded', function() {
                     submitButton.disabled = false;
                     submitButton.style.background = '';
                 }, 3000);
-            }, 1500);
+            }, function(error) {
+                // Error handling with detailed messages
+                console.error('❌ EmailJS Error:', error);
+                
+                let errorMessage = 'Failed to send message. ';
+                
+                // Provide specific error messages
+                if (error.status === 400) {
+                    errorMessage += 'Invalid request. Please check your form data.';
+                } else if (error.status === 401) {
+                    errorMessage += 'Authentication failed. Please check your EmailJS Public Key.';
+                } else if (error.status === 404) {
+                    errorMessage += 'Service or Template not found. Please check your Service ID and Template ID.';
+                } else if (error.status === 429) {
+                    errorMessage += 'Too many requests. Please try again later.';
+                } else if (error.status === 500) {
+                    errorMessage += 'Server error. Please try again later.';
+                } else {
+                    errorMessage += 'Please try again or contact us directly at ' + EMAILJS_CONFIG.TO_EMAIL;
+                }
+
+                submitButton.innerHTML = '<span>Failed to Send</span>';
+                submitButton.style.background = 'linear-gradient(135deg, #ff006e 0%, #ff4444 100%)';
+                
+                // Show detailed error message
+                showNotification(errorMessage, 'error');
+
+                // Reset button after 5 seconds
+                setTimeout(() => {
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                    submitButton.style.background = '';
+                }, 5000);
+            });
         });
     }
+
+    // ============================================
+    // Notification Function
+    // ============================================
+
+    function showNotification(message, type) {
+        // Remove existing notification if any
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: ${type === 'success' ? 'linear-gradient(135deg, #ffb700 0%, #ff9500 100%)' : 'linear-gradient(135deg, #ff4444 0%, #ff006e 100%)'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            animation: slideInRight 0.3s ease-out;
+            max-width: 400px;
+            font-weight: 500;
+        `;
+
+        document.body.appendChild(notification);
+
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 5000);
+    }
+
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 
     // ============================================
     // Parallax Effect for Hero Section
@@ -360,8 +543,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Console Welcome Message
     // ============================================
 
-    console.log('%c🚀 3D Print Pro', 'color: #00d4ff; font-size: 20px; font-weight: bold;');
-    console.log('%cWelcome to our website!', 'color: #7c3aed; font-size: 14px;');
+    console.log('%c🚀 PrintBox 3D', 'color: #ff7b00; font-size: 20px; font-weight: bold;');
+    console.log('%cWelcome to our website!', 'color: #ffb700; font-size: 14px;');
 });
 
 // ============================================
