@@ -193,12 +193,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // EmailJS Configuration
     // IMPORTANT: Replace these with your actual EmailJS credentials
     const EMAILJS_CONFIG = {
-        PUBLIC_KEY: "rljC3g0prIXFwPL-p",        // Get from EmailJS Account → General
-        SERVICE_ID: "service_a9u4qxl",       // Get from EmailJS Email Services
-        TEMPLATE_ID: "template_choiqrb",      // Get from EmailJS Email Templates (Main contact form)
-        AUTO_REPLY_TEMPLATE_ID: "template_wqsor8q", // Get from EmailJS Email Templates (Auto-reply)
-        TO_EMAIL: "ajaybendale1999@gmail.com", // Your email address
-        FROM_NAME: "PrintBox 3D"              // Your business name for auto-reply
+        PUBLIC_KEY: "HrbaZfuSTSfuh57EU",        // Get from EmailJS Account → General
+        SERVICE_ID: "service_2u4w70g",       // Get from EmailJS Email Services
+        TEMPLATE_ID: "template_qdzlm2f",      // Get from EmailJS Email Templates (Main contact form)
+        AUTO_REPLY_TEMPLATE_ID: "template_rv9a2bh", // Get from EmailJS Email Templates (Auto-reply)
+        TO_EMAIL: "printatprintbox3d@gmail.com", // Your email address
+        FROM_NAME: "PrintBox3D"              // Your business name for auto-reply
     };
 
     // Check if EmailJS is loaded
@@ -239,12 +239,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Validate EmailJS setup
             if (!isEmailJSLoaded()) {
-                showNotification('Email service not available. Please contact us directly at ajaybendale1999@gmail.com', 'error');
+                showNotification('Email service not available. Please contact us directly at printatprintbox3d@gmail.com', 'error');
                 return;
             }
 
             if (!areCredentialsConfigured()) {
-                showNotification('Email service not configured. Please contact us directly at ajaybendale1999@gmail.com', 'error');
+                showNotification('Email service not configured. Please contact us directly at printatprintbox3d@gmail.com', 'error');
                 console.error('EmailJS credentials not configured. Please update EMAILJS_CONFIG in js/script.js');
                 return;
             }
