@@ -195,8 +195,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const EMAILJS_CONFIG = {
         PUBLIC_KEY: "rljC3g0prIXFwPL-p",        // Get from EmailJS Account → General
         SERVICE_ID: "service_a9u4qxl",       // Get from EmailJS Email Services
-        TEMPLATE_ID: "template_choiqrb",      // Get from EmailJS Email Templates
-        TO_EMAIL: "ajaybendale1999@gmail.com" // Your email address
+        TEMPLATE_ID: "template_choiqrb",      // Get from EmailJS Email Templates (Main contact form)
+        AUTO_REPLY_TEMPLATE_ID: "template_wqsor8q", // Get from EmailJS Email Templates (Auto-reply)
+        TO_EMAIL: "ajaybendale1999@gmail.com", // Your email address
+        FROM_NAME: "PrintBox 3D"              // Your business name for auto-reply
     };
 
     // Check if EmailJS is loaded
@@ -281,14 +283,17 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.innerHTML = '<span>Sending...</span>';
             submitButton.disabled = true;
 
-            // Send email using EmailJS
+            // Send email to business using EmailJS
             emailjs.send(
                 EMAILJS_CONFIG.SERVICE_ID,
                 EMAILJS_CONFIG.TEMPLATE_ID,
                 formData
             )
             .then(function(response) {
-                console.log('✅ Email sent successfully:', response.status, response.text);
+                console.log('✅ Email sent successfully to business:', response.status, response.text);
+                
+                // Send auto-reply to user
+                sendAutoReply(name, email, subject);
                 
                 // Success
                 submitButton.innerHTML = '<span>Message Sent! ✓</span>';
@@ -298,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 contactForm.reset();
 
                 // Show success message
-                showNotification('Message sent successfully! We\'ll get back to you soon.', 'success');
+                showNotification('Message sent successfully! Check your email for confirmation.', 'success');
 
                 // Reset button after 3 seconds
                 setTimeout(() => {
@@ -340,6 +345,39 @@ document.addEventListener('DOMContentLoaded', function() {
                     submitButton.style.background = '';
                 }, 5000);
             });
+        });
+    }
+
+    // ============================================
+    // Auto-Reply Function
+    // ============================================
+
+    function sendAutoReply(userName, userEmail, userSubject) {
+        // Check if auto-reply template is configured
+        if (EMAILJS_CONFIG.AUTO_REPLY_TEMPLATE_ID === "YOUR_AUTO_REPLY_TEMPLATE_ID") {
+            console.warn('⚠️ Auto-reply template not configured. Skipping auto-reply.');
+            return;
+        }
+
+        const autoReplyData = {
+            to_name: userName,
+            to_email: userEmail,
+            from_name: EMAILJS_CONFIG.FROM_NAME,
+            subject: userSubject,
+            reply_to: EMAILJS_CONFIG.TO_EMAIL
+        };
+
+        // Send auto-reply email
+        emailjs.send(
+            EMAILJS_CONFIG.SERVICE_ID,
+            EMAILJS_CONFIG.AUTO_REPLY_TEMPLATE_ID,
+            autoReplyData
+        )
+        .then(function(response) {
+            console.log('✅ Auto-reply sent successfully:', response.status, response.text);
+        }, function(error) {
+            // Log error but don't show to user (auto-reply failure shouldn't affect main form)
+            console.warn('⚠️ Auto-reply failed (non-critical):', error);
         });
     }
 
